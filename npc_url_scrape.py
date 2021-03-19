@@ -23,7 +23,6 @@ def write_hrefs(tags):
         raise SystemExit('##### No anchor tags to parse! Exiting ##### ')
     print('Writing HREFs to npc-urls.txt')
     f = open('npc-urls.txt', 'w')
-    f.write('### List of Dark Souls Wikidot NPC Page URLS ###')
     for tag in tags:
         href = tag.get('href')
         f.write(f'http://darksouls.wikidot.com{href}\n')
