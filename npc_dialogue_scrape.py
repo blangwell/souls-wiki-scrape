@@ -13,41 +13,39 @@ def get_link_list():
         raise SystemExit(f'##### Source File Not Found! #####\n{e}')
     return npc_links
 
-def get_npc_dialogue(npc_links):
+# GET npc page 
+def get_npc_dialogue(npc_link):
     try:
-        npc_page = requests.get(npc_links[0])
+        npc_page = requests.get(npc_link)
         npc_page.raise_for_status()
     except requests.exceptions.RequestException as e:
         raise SystemExit(f'##### Error during GET request #####')
 
     soup = BeautifulSoup(npc_page.text, 'lxml')
+    for strong in soup('strong'):
+        strong.decompose()
+    for br in soup('br'):
+        br.decompose()
 
     try: 
+        # get dialogue container
         dialogue_container = soup.find('div', {'class': 'collapsible-block-content'})
+        lis = dialogue_container.find_all('li')
     except AttributeError as e: 
-        raise SystemExit(f'##### Error finding dialogue container #####')
-    lis = dialogue_container.find_all('li')
+        # if no dialogue, return an empty string
+        return ''
 
-    def extract_strong_tags(html):
-        try:
-            for li in html:
-                unwanted = li.find('strong')
-                unwanted.extract()
-            extract_strong_tags(html)
-        except AttributeError:
-            pass
-        finally:
-            return html
-
-    # recursively extract all strong tags from resultset
-    destronged = extract_strong_tags(lis)
     dialogue = ''
-    for li in destronged:
-        filtered = re.sub('\[.*\]|\n+', ' ', li.text)
+    for li in lis:
+        # remove bracketed annotations, newlines, and duplicate spaces
+        filtered = re.sub('\[.*\]|\n', ' ', li.text)
+        # filtered = re.sub('\s\s', ' ', filtered)
         if filtered != ' ':
             dialogue += filtered.strip()
     print(repr(dialogue))
+    time.sleep(5)
 
 
 npc_links = get_link_list()
-get_npc_dialogue(npc_links)
+for link in npc_links:
+    get_npc_dialogue(link)
