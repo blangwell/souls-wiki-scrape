@@ -37,15 +37,15 @@ def get_npc_dialogue(npc_link):
 
     dialogue_arr = []
     dialogue = ''
-    for li in lis:
-        # remove bracketed annotations, newlines
-        filtered_chunk = re.sub(r'\[.*\]|\n|\\', ' ', li.text)      
-        if filtered_chunk != '' and filtered_chunk != ' ':
-            dialogue += ' ' + filtered_chunk.strip()
-            dialogue_arr.append(filtered_chunk.strip())
+    with open('npc-dialogue.txt', 'a') as f:
+        for li in lis:
+            # remove bracketed annotations, newlines
+            filtered_chunk = re.sub(r'\[.*\]|\(.*\)|\n|\\', ' ', li.text)      
+            if filtered_chunk != '' and filtered_chunk != ' ':
+                dialogue_arr.append(filtered_chunk.strip())
+                f.write(' ' + filtered_chunk.strip())
     print(dialogue_arr)
     time.sleep(5)
-
 
 npc_links = get_link_list()
 for link in npc_links:
