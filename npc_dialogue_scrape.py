@@ -18,7 +18,7 @@ def get_npc_dialogue(npc_link):
     try:
         npc_page = requests.get(npc_link)
         npc_page.raise_for_status()
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException:
         raise SystemExit(f'##### Error during GET request #####')
 
     soup = BeautifulSoup(npc_page.text, 'lxml')
@@ -28,21 +28,22 @@ def get_npc_dialogue(npc_link):
         br.decompose()
 
     try: 
-        # get dialogue container
+        # find dialogue container
         dialogue_container = soup.find('div', {'class': 'collapsible-block-content'})
         lis = dialogue_container.find_all('li')
-    except AttributeError as e: 
+    except AttributeError: 
         # if no dialogue, return an empty string
         return ''
 
+    dialogue_arr = []
     dialogue = ''
     for li in lis:
-        # remove bracketed annotations, newlines, and duplicate spaces
-        filtered = re.sub('\[.*\]|\n', ' ', li.text)
-        # filtered = re.sub('\s\s', ' ', filtered)
-        if filtered != ' ':
-            dialogue += filtered.strip()
-    print(repr(dialogue))
+        # remove bracketed annotations, newlines
+        filtered_chunk = re.sub(r'\[.*\]|\n|\\', ' ', li.text)      
+        if filtered_chunk != '' and filtered_chunk != ' ':
+            dialogue += ' ' + filtered_chunk.strip()
+            dialogue_arr.append(filtered_chunk.strip())
+    print(dialogue_arr)
     time.sleep(5)
 
 
